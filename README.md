@@ -1,6 +1,7 @@
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v2-yellow.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0)
 ![CI pipeline](https://github.com/OliverDrechsler/fetchmail_bot/workflows/Fetchmail_Bot/badge.svg)
 [![GitHub release](https://img.shields.io/github/release/OliverDrechsler/fetchmail_bot.svg)](https://GitHub.com/OliverDrechsler/fetchmail_bot/releases/)
+[![CodeQL](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/codeql.yml/badge.svg?branch=master&event=push)](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/codeql.yml) 
 # Telegram Bot to run fetchmail process for users
 
 **Telegram bot invokes on request a fetchmail for users**
