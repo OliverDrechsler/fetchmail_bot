@@ -1,0 +1,45 @@
+Python Modulename;Version Nr.;License Type
+pyyaml; 6.0.1; MIT
+pytest; 7.2.0; MIT
+pytelegrambotapi; 4.15.4; GPL2
+
+
+
+
+Libirary license report
+Name: PyYAML
+Version: 6.0.1
+Summary: YAML parser and emitter for Python
+Home-page: https://pyyaml.org/
+Author: Kirill Simonov
+Author-email: xi@resolvent.net
+License: MIT
+Location: /Users/oliver/.pyenv/versions/3.12.0/lib/python3.12/site-packages
+Requires: 
+Required-by: 
+
+
+Name: pytest
+Version: 7.2.0
+Summary: pytest: simple powerful testing with Python
+Home-page: https://docs.pytest.org/en/latest/
+Author: Holger Krekel, Bruno Oliveira, Ronny Pfannschmidt, Floris Bruynooghe, Brianna Laugher, Florian Bruhin and others
+Author-email: 
+License: MIT
+Location: /Users/oliver/.pyenv/versions/3.12.0/lib/python3.12/site-packages
+Requires: attrs, iniconfig, packaging, pluggy
+Required-by: 
+
+
+Name: pyTelegramBotAPI
+Version: 4.15.4
+Summary: Python Telegram bot api. 
+Home-page: https://github.com/eternnoir/pyTelegramBotAPI
+Author: eternnoir
+Author-email: eternnoir@gmail.com
+License: GPL2
+Location: /Users/oliver/.pyenv/versions/3.12.0/lib/python3.12/site-packages
+Requires: requests
+Required-by: telebot
+
+

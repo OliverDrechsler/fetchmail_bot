@@ -1,0 +1,15 @@
+__pycache__/
+*__pycache__/*
+.pytest_cache/
+*.pyc
+.vscode/
+jpynb/
+*.jpynb
+*.ipynb
+config.yaml
+*.DS_Store
+.DS_Store
+_build/
+.coverage
+coverage.xml
+.python-version
