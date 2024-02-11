@@ -59,10 +59,10 @@ class Configuration:
         Get a list of users from user_dict and additional_list.
         """
         return (
-            [i for i in self.user_dict.keys()]
-            + [i.upper() for i in self.additional_list]
-            + [i.lower() for i in self.additional_list]
-            + [i.capitalize() for i in self.additional_list]
+            [i for i in self.user_dict.keys()] + [
+                i.upper() for i in self.additional_list] + [
+                    i.lower() for i in self.additional_list] + [
+                        i.capitalize() for i in self.additional_list]
         )
 
     def get_id_list(self) -> list:
@@ -97,10 +97,10 @@ class Configuration:
         except FileNotFoundError:
             self.logger.error("Could not find %s", self.config_file)
             raise FileNotFoundError("Could not find config file")
-        except:
+        except Exception as e:
+            self.logger.error(msg=e)
             self.logger.error(
-                "a YAML error is ocurred during parsing file %s ", self.config_file
-            )
+                msg=f"a YAML error is ocurred during parsing file {self.config_file} ")
             raise YamlReadError(
                 message="a YAML error is " + "ocurred during parsing file"
             )

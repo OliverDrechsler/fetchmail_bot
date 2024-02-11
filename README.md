@@ -1,3 +1,5 @@
+![CI pipeline](https://github.com/OliverDrechsler/fetchmail_bot/workflows/Fetchmail_Bot/badge.svg)
+
 # Telegram Bot to run fetchmail process for users
 
 **Fetchmail_bot** is a telegram bot and is intended to perform a 
