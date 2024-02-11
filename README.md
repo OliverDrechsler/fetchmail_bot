@@ -2,6 +2,23 @@
 
 # Telegram Bot to run fetchmail process for users
 
+**Telegram bot invokes on request a fetchmail for users**
+
+- [Telegram Bot to run fetchmail process for users](#telegram-bot-to-run-fetchmail-process-for-users)
+  - [Short description](#short-description)
+  - [Project Structure](#project-structure)
+  - [Telegram Bot setup](#telegram-bot-setup)
+  - [Script config](#script-config)
+  - [Install / setup script](#install--setup-script)
+    - [How to install / python requirements](#how-to-install--python-requirements)
+    - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
+  - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
+  - [Fetchmail requirements](#fetchmail-requirements)
+  - [Script run](#script-run)
+  - [Debug options](#debug-options)
+    - [How to run unit-tests](#how-to-run-unit-tests)
+
+## Short description
 **Fetchmail_bot** is a telegram bot and is intended to perform a 
 fetchmail command for specific user on the same system.  
   
@@ -22,6 +39,27 @@ The allowed user are able to initiate a fetchmail process for other users and th
 Allowed user have just to run the command with the target username `/<target username>`  
 This *target_usernames* must configured as well in `config.yaml` in the `additional_list`.  
   
+## Project Structure
+```
+.
+├── ./LICENSE      # License file
+├── ./README.md
+├── ./config       # Config directory for script
+│   ├── ./config/config_template.yaml   # config template file must be renamed to config.yaml and content adjusted.
+│   └── ./config/config_util.py         # Python module to read config
+├── ./fetchmail_bot.py                  # Main telegram fetchmail bot scriot
+├── ./fetchmail_bot.service             # template for creating a Linux systemd service
+├── ./licenses.sh                       # bash script for creating library dependcy license file
+├── ./requirements.txt                  # required python libraries
+├── ./requirements_license.txt          # used libraries license file
+├── ./telegram_bot_setup.md             # docu for creating a telegram bot
+└── ./test                              # unit test folder
+    ├── ./test/test_config_util.py
+    ├── ./test/test_fetchmail.py
+    ├── ./test/test_fetchmail_main.py
+    └── ./test/test_fetchmail_thread_fetch.py
+```
+
 ## Telegram Bot setup
 [telegram bot setup docu](telegram_bot_setup.md)
 
@@ -66,3 +104,9 @@ To enable DEBUG logging options edit `fatchmail_bot.py` line 13
 value `level=logging.INFO` to `level=logging.DEBUG`.  
 Rerun script to get more log output.  
   
+### How to run unit-tests
+
+1. Install pytest  
+`python3 -m pytest`  
+2. run pytest
+`pytest -v`
