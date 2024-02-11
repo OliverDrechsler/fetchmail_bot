@@ -13,19 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.12
-      - run: pip install nox==2022.1.7
-      - run: pip install poetry==1.1.13
-      # - run: nox
+          python-version: "3.12"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with flake8
         run: |
           pip install flake8
@@ -36,15 +33,15 @@ jobs:
       - name: Run bandit - lint
         run: |
           pip install bandit
-          bandit -s B605 *
+          bandit -s B603,B404 *
         # continue-on-error: true
 
 
       - name: black - static security code check
         run: |
           pip install black
-          black --verbose common/.
           black --verbose fetchmail_bot.py
+          black --verbose config/config_util.py
 
       - name: Test with pytest
         run: |

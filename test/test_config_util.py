@@ -10,6 +10,7 @@ import unittest
 # set module path for testing
 sys.path.insert(0, "test")
 
+
 class TestConfiguration:
     @patch(
         "builtins.open",

@@ -20,11 +20,9 @@ class Test_FetchmailBot:
     @patch("fetchmail_bot.get_allowed", return_value=True)
     @patch("fetchmail_bot.telebot.TeleBot")
     @patch("fetchmail_bot.config_util.Configuration")
-    def test_message_handling_and_fetchmail_thread_start(self,
-                                                         mock_config,
-                                                         mock_telebot,
-                                                         mock_get_allowed,
-                                                         mock_thread_start):
+    def test_message_handling_and_fetchmail_thread_start(
+        self, mock_config, mock_telebot, mock_get_allowed, mock_thread_start
+    ):
         mock_config.return_value.list_user = ["testuser"]
         mock_message = MagicMock()
         mock_message.text = "/testuser"
@@ -39,7 +37,7 @@ class Test_FetchmailBot:
     #     "fetchmail_bot.subprocess.check_output", side_effect=Exception("Test Exception"))
     # @patch("fetchmail_bot.telebot.TeleBot")
     # def test_error_handling_during_fetchmail_process(self,
-    #                                                  mock_telebot, 
+    #                                                  mock_telebot,
     #                                                  mock_subprocess):
     #     mock_bot = mock_telebot.return_value
     #     # mock_fetchmail = mock_subprocess.
