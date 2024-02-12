@@ -20,7 +20,7 @@
     - [General dependency - requirements](#general-dependency---requirements)
     - [Fetchmail requirements](#fetchmail-requirements)
     - [How to install / python requirements](#how-to-install--python-requirements)
-  - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
+    - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
   - [Script run](#script-run)
   - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
   - [Debug options](#debug-options)
@@ -55,12 +55,12 @@ This *target_usernames* must configured as well in `config.yaml` in the `additio
 ├── ./config       # Config directory for script
 │   ├── ./config/config_template.yaml   # config template file must be renamed to config.yaml and content adjusted.
 │   └── ./config/config_util.py         # Python module to read config
-├── ./fetchmail_bot.py                  # Main telegram fetchmail bot scriot
+├── ./fetchmail_bot.py                  # Main telegram fetchmail bot script
 ├── ./fetchmail_bot.service             # template for creating a Linux systemd service
-├── ./licenses.sh                       # bash script for creating library dependcy license file
+├── ./licenses.sh                       # bash script for creating library decency license file
 ├── ./requirements.txt                  # required python libraries
 ├── ./requirements_license.txt          # used libraries license file
-├── ./telegram_bot_setup.md             # docu for creating a telegram bot
+├── ./telegram_bot_setup.md             # doc for creating a telegram bot
 └── ./test                              # unit test folder
     ├── ./test/test_config_util.py
     ├── ./test/test_fetchmail.py
@@ -69,7 +69,7 @@ This *target_usernames* must configured as well in `config.yaml` in the `additio
 ```
 
 ## Telegram Bot setup
-[telegram bot setup docu](telegram_bot_setup.md)
+[telegram bot setup doc](telegram_bot_setup.md)
 
 ## Script config
 
@@ -94,22 +94,7 @@ Clone repo to your RPi.
 now run pip3 to install python requirements  
 ```pip3 install requirements.txt```
 
-#- [Telegram Bot to run fetchmail process for users](#telegram-bot-to-run-fetchmail-process-for-users)
-- [Telegram Bot to run fetchmail process for users](#telegram-bot-to-run-fetchmail-process-for-users)
-  - [Short description](#short-description)
-  - [Project Structure](#project-structure)
-  - [Telegram Bot setup](#telegram-bot-setup)
-  - [Script config](#script-config)
-  - [Install / setup script](#install--setup-script)
-    - [Gerneral dependcy - requirements](#general-dependency---requirements)
-    - [Fetchmail requirements](#fetchmail-requirements)
-    - [How to install / python requirements](#how-to-install--python-requirements)
-  - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
-  - [Script run](#script-run)
-  - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
-  - [Debug options](#debug-options)
-    - [How to run unit-tests](#how-to-run-unit-tests)
-## Configure / setup config.yaml file
+### Configure / setup config.yaml file
 Copy `config/config_template.yaml` to `config/config.yaml`  
 Edit `config/config.yaml` and fill with right values.  
 
@@ -124,7 +109,7 @@ To run the script switch to directory and type `python3 fetchmail_bot.py`
 
 Adjust file `fetchmail_bot.service` to your path.  
 To run fetchmail_bot as a service on startup with root permissions  
-copy `fetchmail_bot.service`to `/etc/systemd/system/`to your RPi systemd deamon folder.  
+copy `fetchmail_bot.service`to `/etc/systemd/system/`to your RPi systemd daemon folder.  
 Run `systemctl daemon-reload` and `systemctl start fetchmail.service`to start it as a service.  
 
 ## Debug options
