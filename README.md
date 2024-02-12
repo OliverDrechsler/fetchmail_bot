@@ -1,6 +1,9 @@
 ![build](https://github.com/OliverDrechsler/fetchmail_bot/workflows/Fetchmail_Bot/badge.svg) 
+[![CodeQL](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/github-code-scanning/codeql)
+
 [![GitHub release](https://img.shields.io/github/release/OliverDrechsler/fetchmail_bot.svg)](https://GitHub.com/OliverDrechsler/fetchmail_bot/releases/) 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v2-yellow.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0)
+
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/) 
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
