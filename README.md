@@ -17,11 +17,12 @@
   - [Telegram Bot setup](#telegram-bot-setup)
   - [Script config](#script-config)
   - [Install / setup script](#install--setup-script)
+    - [General dependency - requirements](#general-dependency---requirements)
+    - [Fetchmail requirements](#fetchmail-requirements)
     - [How to install / python requirements](#how-to-install--python-requirements)
-    - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
   - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
-  - [Fetchmail requirements](#fetchmail-requirements)
   - [Script run](#script-run)
+  - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
   - [Debug options](#debug-options)
     - [How to run unit-tests](#how-to-run-unit-tests)
 
@@ -37,7 +38,7 @@ Fetchmail_bot will do that for you via telegram message.
 
 Just use the telegram command with the targeted username  
 `/myuser` or with the message `mail`.  
-To simplyfy it's possible to run the bot on a telegram group channel.
+To simplify it's possible to run the bot on a telegram group channel.
 Just add the bot the required persons to the group.  
 Configure the `config.yaml` to limit access / reaction of the bot  
 to only specified users - telegram-id's modify the `allow_list`in `config.yaml`.
@@ -74,37 +75,57 @@ This *target_usernames* must configured as well in `config.yaml` in the `additio
 
 ## Install / setup script
 
+### General dependency - requirements
+
+This script is intended to run only on any(x86-64, arm, ..) linux systems.  
+It's required to run the script in root shell environment to perform a `su <username>`
+to switch into user context.
+
+### Fetchmail requirements
+It's required to have fetchmail installed and  
+`.fetchmailrc` configured in each user home dir. 
+
 ### How to install / python requirements 
 
 Python 3, pip3 and git cli is required.  
 Clone repo to your RPi.  
 ```git clone git@github.com:OliverDrechsler/fetchmail_bot.git```
 
-now run pip3 to install python requirments  
+now run pip3 to install python requirements  
 ```pip3 install requirements.txt```
 
-### How to run project code as a systemd service
-
-Adjust file `fetchmail_bot.service` to your path.  
-To run fetchmail_bot as a service on startup with root permissions  
-copy `fetchmail_bot.service`to `/etc/systemd/system/`to your RPi systemd deamon folder.  
-Run `systemctl daemon-reload` and `systemctl start fetchmail.service`to start it as a service.  
-
+#- [Telegram Bot to run fetchmail process for users](#telegram-bot-to-run-fetchmail-process-for-users)
+- [Telegram Bot to run fetchmail process for users](#telegram-bot-to-run-fetchmail-process-for-users)
+  - [Short description](#short-description)
+  - [Project Structure](#project-structure)
+  - [Telegram Bot setup](#telegram-bot-setup)
+  - [Script config](#script-config)
+  - [Install / setup script](#install--setup-script)
+    - [Gerneral dependcy - requirements](#general-dependency---requirements)
+    - [Fetchmail requirements](#fetchmail-requirements)
+    - [How to install / python requirements](#how-to-install--python-requirements)
+  - [Configure / setup config.yaml file](#configure--setup-configyaml-file)
+  - [Script run](#script-run)
+  - [How to run project code as a systemd service](#how-to-run-project-code-as-a-systemd-service)
+  - [Debug options](#debug-options)
+    - [How to run unit-tests](#how-to-run-unit-tests)
 ## Configure / setup config.yaml file
 Copy `config/config_template.yaml` to `config/config.yaml`  
 Edit `config/config.yaml` and fill with right values.  
-
-## Fetchmail requirements
-It's required to have fetchmail installed and  
-`.fetchmailrc` configured in each user home dir. 
-  
 
 ## Script run
 The script must run on that system where fetchmail is configured.  
 Script requires to run within `root`context to switch to the target user to run  
 shell command `su <username> -c fetchmail`.  
   
-To run the script switch to directory and type `./fetchmail_bot.py`  
+To run the script switch to directory and type `python3 fetchmail_bot.py`  
+
+## How to run project code as a systemd service
+
+Adjust file `fetchmail_bot.service` to your path.  
+To run fetchmail_bot as a service on startup with root permissions  
+copy `fetchmail_bot.service`to `/etc/systemd/system/`to your RPi systemd deamon folder.  
+Run `systemctl daemon-reload` and `systemctl start fetchmail.service`to start it as a service.  
 
 ## Debug options
 To enable DEBUG logging options edit `fatchmail_bot.py` line 13  
