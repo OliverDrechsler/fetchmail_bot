@@ -58,16 +58,17 @@ This *target_usernames* must configured as well in `config.yaml` in the `additio
 ├── ./config       # Config directory for script
 │   ├── ./config/config_template.yaml   # config template file must be renamed to config.yaml and content adjusted.
 │   └── ./config/config_util.py         # Python module to read config
+├── ./bot       # Config directory for script
+│   └── ./bot/receive_msg.py            # Telegram Bot class for receiving messages and run fetchmail process
 ├── ./fetchmail_bot.py                  # Main telegram fetchmail bot script
 ├── ./fetchmail_bot.service             # template for creating a Linux systemd service
 ├── ./licenses.sh                       # bash script for creating library decency license file
 ├── ./requirements.txt                  # required python libraries
 ├── ./requirements_license.txt          # used libraries license file
 ├── ./telegram_bot_setup.md             # doc for creating a telegram bot
-└── ./test                              # unit test folder
+└── ./test                              # unit-tests  folder
     ├── ./test/test_config_util.py
-    ├── ./test/test_fetchmail.py
-    ├── ./test/test_fetchmail_main.py
+    ├── ./test/test_receive_msg.py
     └── ./test/test_fetchmail_thread_fetch.py
 ```
 
