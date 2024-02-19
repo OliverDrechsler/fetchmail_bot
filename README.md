@@ -116,8 +116,9 @@ copy `fetchmail_bot.service`to `/etc/systemd/system/`to your RPi systemd daemon 
 Run `systemctl daemon-reload` and `systemctl start fetchmail.service`to start it as a service.  
 
 ## Debug options
-To enable DEBUG logging options edit `fatchmail_bot.py` line 13  
+To enable DEBUG logging options edit `fatchmail_bot.py` line 11  
 value `level=logging.INFO` to `level=logging.DEBUG`.  
+Comment line `# telebot.logger.setLevel(logging.DEBUG)` in (remove #) for further telebot logs.  
 Rerun script to get more log output.  
   
 ### How to run unit-tests
@@ -126,3 +127,5 @@ Rerun script to get more log output.
 `python3 -m pytest`  
 2. run pytest
 `pytest -v`
+or to run with coverage 
+`pytest --cov=./ --cov-report=xml`
