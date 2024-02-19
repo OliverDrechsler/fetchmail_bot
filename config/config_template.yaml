@@ -1,8 +1,8 @@
 telegram:
   token: "telegram_bot_token_code_here" # put in here your telegram bot token
   chat_number: "-4321" # insert here you telegram group chat id / number
-  allow_list:   # A list of username keys with telegram id's as values which are allowed 
-          # to trigger the bot with "mail" text in shell context of his username
+  allow_list:          # A list of username keys with telegram id's as values which are allowed 
+                       # to trigger the bot with "mail" text in shell context of his username
     - Username1: "123" # A "Username:" and "the telegram id" of this user
     - Username2: "456" # A "Username:" and "the telegram id" of this user
   additional_list:    # additional username list for which 
