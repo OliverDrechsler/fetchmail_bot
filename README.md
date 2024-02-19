@@ -53,12 +53,12 @@ This *target_usernames* must configured as well in `config.yaml` in the `additio
 ## Project Structure
 ```
 .
-├── ./LICENSE      # License file
+├── ./LICENSE                           # License file
 ├── ./README.md
-├── ./config       # Config directory for script
+├── ./config                            # Config directory for script
 │   ├── ./config/config_template.yaml   # config template file must be renamed to config.yaml and content adjusted.
 │   └── ./config/config_util.py         # Python module to read config
-├── ./bot       # Config directory for script
+├── ./bot                               # Telegram Bot directory
 │   └── ./bot/receive_msg.py            # Telegram Bot class for receiving messages and run fetchmail process
 ├── ./fetchmail_bot.py                  # Main telegram fetchmail bot script
 ├── ./fetchmail_bot.service             # template for creating a Linux systemd service
