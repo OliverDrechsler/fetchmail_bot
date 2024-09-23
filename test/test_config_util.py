@@ -1,6 +1,8 @@
 import pytest
 import sys
 import os
+import unittest
+from unittest.mock import patch
 
 from unittest.mock import patch, mock_open
 from config.config_util import Configuration, YamlReadError
@@ -11,7 +13,7 @@ import unittest
 sys.path.insert(0, "test")
 
 
-class TestConfiguration:
+class TestConfiguration(unittest.TestCase):
     @patch(
         "builtins.open",
         new_callable=mock_open,
@@ -36,3 +38,21 @@ class TestConfiguration:
     def test_read_config_invalid_yaml_file(self, mock_isfile, mock_open):
         with pytest.raises(YamlReadError):
             Configuration()
+
+    @patch.object(Configuration, 'get_user_dict')
+    def test_get_user_list(self, mock_get_user_dict):
+        config = Configuration()
+        # Mock the return value of get_user_dict
+        mock_get_user_dict.return_value = {
+            'user1': '12345',
+            'user2': '67890',
+            'user3': 'abcde'
+        }
+
+        # Mock the additional_list attribute
+        config.additional_list = ['USER1', 'user2', 'USER3']
+
+        # Call the method and assert the result
+        expected_result = ['USER1', 'USER2', 'USER3', 'user1', 'user2', 'user3', 'User1', 'User2', 'User3']
+        print(config.get_user_list())
+        self.assertEqual(expected_result, config.get_user_list())
