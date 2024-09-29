@@ -58,6 +58,7 @@ class ReceivingMessage:
                         self.bot.reply_to(
                             message, f" - I'll start fetching new mails for {k}"
                         )
+                        self.logger.info(msg=f"will call fetchmail with username: {k}")
                         fetch_mail_thread = threading.Thread(
                             target=self.fetch_mail_process,
                             args=(k.lower(), message),
