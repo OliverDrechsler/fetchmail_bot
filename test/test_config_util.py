@@ -39,20 +39,18 @@ class TestConfiguration(unittest.TestCase):
         with pytest.raises(YamlReadError):
             Configuration()
 
-    @patch.object(Configuration, 'get_user_dict')
+    @patch("config.config_util.Configuration.get_user_dict", return_value={
+            'useR1': '12345',
+            'useR2': '67890',
+            'useR3': 'abcde'
+        })
     def test_get_user_list(self, mock_get_user_dict):
         config = Configuration()
-        # Mock the return value of get_user_dict
-        mock_get_user_dict.return_value = {
-            'user1': '12345',
-            'user2': '67890',
-            'user3': 'abcde'
-        }
-
         # Mock the additional_list attribute
-        config.additional_list = ['USER1', 'user2', 'USER3']
-
+        config.additional_list = ['useR4', 'useR5']
         # Call the method and assert the result
-        expected_result = ['USER1', 'USER2', 'USER3', 'user1', 'user2', 'user3', 'User1', 'User2', 'User3']
+        expected_result = ['USER1', 'USER2', 'USER3', 'user1', 'user2', 'user3', 'User1', 'User2', 'User3', 'USER4', 'USER5', 'user4', 'user5', 'User4', 'User5']
         print(config.get_user_list())
         self.assertEqual(expected_result, config.get_user_list())
+
+

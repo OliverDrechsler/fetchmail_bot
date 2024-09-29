@@ -59,10 +59,12 @@ class Configuration:
         Get a list of users from user_dict and additional_list.
         """
         return (
-            [i for i in self.user_dict.keys()] + [
-                i.upper() for i in self.additional_list] + [
-                    i.lower() for i in self.additional_list] + [
-                        i.capitalize() for i in self.additional_list]
+            [i.upper() for i in self.user_dict.keys()] +
+            [i.lower() for i in self.user_dict.keys()] +
+            [i.capitalize() for i in self.user_dict.keys()] +
+            [i.upper() for i in self.additional_list] +
+            [i.lower() for i in self.additional_list] +
+            [i.capitalize() for i in self.additional_list]
         )
 
     def get_id_list(self) -> list:
