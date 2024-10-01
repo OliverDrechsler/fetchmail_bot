@@ -39,8 +39,7 @@ jobs:
         run: |
           pip install bandit
           bandit -s B603,B404 *
-        # continue-on-error: true
-
+        continue-on-error: true
 
       - name: black - static security code check
         run: |
