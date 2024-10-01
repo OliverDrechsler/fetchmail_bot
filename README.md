@@ -1,5 +1,7 @@
 ![build](https://github.com/OliverDrechsler/fetchmail_bot/workflows/Fetchmail_Bot/badge.svg) 
 [![CodeQL](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/OliverDrechsler/fetchmail_bot/actions/workflows/github-code-scanning/codeql)
+[![Synk security](https://snyk.io/test/github/OliverDrechsler/fetchmail_bot/badge.svg)](https://snyk.io/test/github/OliverDrechsler/fetchmail_bot)
+[![Sonar Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OliverDrechsler_fetchmail_bot&metric=alert_status)](https://sonarcloud.io/dashboard?id=OliverDrechsler_fetchmail_bot)
 
 [![GitHub release](https://img.shields.io/github/release/OliverDrechsler/fetchmail_bot.svg)](https://GitHub.com/OliverDrechsler/fetchmail_bot/releases/) 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v2-yellow.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0)
