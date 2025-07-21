@@ -33,7 +33,7 @@ class ReceivingMessage:
             # get username from command to fetch mail for
             username_from_msg: str = str(message.text).lstrip("/").lower()
             sleep(1.5)
-            self.bot.send_message(self.config.telegram_chat_nr, f"{username_from_msg} - I'll start fetching new mails")
+            self.bot.reply_to(message, f"{username_from_msg} - I'll start fetching new mails")
 
             # start new thread for fetchmail
             fetch_mail_thread = threading.Thread(
@@ -58,9 +58,8 @@ class ReceivingMessage:
                         # takes now the user dict key (which hold username)
                         # for run fetchmail process for.
                         sleep(1.5)
-                        self.bot.send_message(
-                            self.config.telegram_chat_nr,
-                            f" - I'll start fetching new mails for {k}"
+                        self.bot.reply_to(
+                            message, f" - I'll start fetching new mails for {k}"
                         )
                         self.logger.info(msg=f"will call fetchmail with username: {k}")
                         fetch_mail_thread = threading.Thread(
@@ -90,8 +89,7 @@ class ReceivingMessage:
             )
             self.logger.info(msg=f"fetch mail process completed: {output}")
             sleep(1.5)
-            self.bot.send_message(
-                self.config.telegram_chat_nr, "New mails fetched - process completed.")
+            self.bot.reply_to(message, "New mails fetched - process completed.")
         except subprocess.CalledProcessError as e:
             self.logger.info(msg="check output")
             if str(e.output.partition("\n")[0]).startswith(
@@ -99,17 +97,17 @@ class ReceivingMessage:
             ):
                 self.logger.info(f"Another fetchmail process is running: {e.output}")
                 sleep(1.5)
-                self.bot.send_message(self.config.telegram_chat_nr
-                                  , "Another fetchmail process is running - retry later again."
+                self.bot.reply_to(
+                    message, "Another fetchmail process is running - retry later again."
                 )
             else:
                 self.logger.info(msg=f"No mails to fetch: {e.output}")
                 sleep(1.5)
-                self.bot.send_message(self.config.telegram_chat_nr, "No mail to fetch found.")
+                self.bot.reply_to(message, "No mail to fetch found.")
         except Exception as e:
             self.logger.info(msg=f"Error during fetch mail process: {e}")
             sleep(1.5)
-            self.bot.send_message(self.config.telegram_chat_nr, f"Error during fetch mail process check logfile!")
+            self.bot.send_message(message.chat.id, f"Error during fetch mail process: {e}")
 
     def get_allowed(self, message: telebot.types.Message) -> bool:
         """Checks given telegram chat id is allowed id from config
