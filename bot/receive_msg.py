@@ -2,6 +2,7 @@ import telebot
 import logging
 import threading
 import subprocess
+from time import sleep
 from config import config_util
 
 logger: logging.Logger = logging.getLogger(name="receive_msg")
@@ -10,7 +11,7 @@ logger: logging.Logger = logging.getLogger(name="receive_msg")
 class ReceivingMessage:
     """Receiving Telegram Bot messages"""
 
-    telebot.apihelper.RETRY_ON_ERROR = True
+    # telebot.apihelper.RETRY_ON_ERROR = True
 
     def __init__(self, bot: telebot.TeleBot, config: config_util.Configuration) -> None:
         """Initial class definition."""
@@ -31,8 +32,9 @@ class ReceivingMessage:
         if self.get_allowed(message=message):
             # get username from command to fetch mail for
             username_from_msg: str = str(message.text).lstrip("/").lower()
-            
+            sleep(1.5)
             self.bot.reply_to(message, f"{username_from_msg} - I'll start fetching new mails")
+
             # start new thread for fetchmail
             fetch_mail_thread = threading.Thread(
                 target=self.fetch_mail_process, args=(username_from_msg, message)
@@ -55,6 +57,7 @@ class ReceivingMessage:
                     if str(message.from_user.id) in v:
                         # takes now the user dict key (which hold username)
                         # for run fetchmail process for.
+                        sleep(1.5)
                         self.bot.reply_to(
                             message, f" - I'll start fetching new mails for {k}"
                         )
@@ -85,6 +88,7 @@ class ReceivingMessage:
                 stderr=subprocess.STDOUT,
             )
             self.logger.info(msg=f"fetch mail process completed: {output}")
+            sleep(1.5)
             self.bot.reply_to(message, "New mails fetched - process completed.")
         except subprocess.CalledProcessError as e:
             self.logger.info(msg="check output")
@@ -92,14 +96,17 @@ class ReceivingMessage:
                 "fetchmail: another foreground fetchmail is running at"
             ):
                 self.logger.info(f"Another fetchmail process is running: {e.output}")
+                sleep(1.5)
                 self.bot.reply_to(
                     message, "Another fetchmail process is running - retry later again."
                 )
             else:
                 self.logger.info(msg=f"No mails to fetch: {e.output}")
+                sleep(1.5)
                 self.bot.reply_to(message, "No mail to fetch found.")
         except Exception as e:
             self.logger.info(msg=f"Error during fetch mail process: {e}")
+            sleep(1.5)
             self.bot.send_message(message.chat.id, f"Error during fetch mail process: {e}")
 
     def get_allowed(self, message: telebot.types.Message) -> bool:
