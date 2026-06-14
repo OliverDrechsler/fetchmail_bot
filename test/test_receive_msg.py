@@ -56,6 +56,25 @@ class TestReceivingMessage(unittest.TestCase):
         )
 
     @patch("bot.receive_msg.threading.Thread")
+    def test_receive_user_mails_matches_command_case_insensitively(self, mock_thread):
+        bot = MagicMock()
+        config = self._make_config()
+        message = self._make_message("/oLi")
+
+        receiving_message = receive_msg.ReceivingMessage(bot, config)
+
+        receiving_message._ReceivingMessage__receive_user_mails(message)
+
+        mock_thread.assert_called_once_with(
+            target=receiving_message._ReceivingMessage__fetch_mail_process,
+            args=("Oli", message),
+        )
+        bot.reply_to.assert_called_once_with(
+            message,
+            "Oli - I'll start fetching new mails",
+        )
+
+    @patch("bot.receive_msg.threading.Thread")
     def test_receive_user_mails_ignores_unknown_command(self, mock_thread):
         bot = MagicMock()
         config = self._make_config()
@@ -146,6 +165,17 @@ class TestReceivingMessage(unittest.TestCase):
         receiving_message = receive_msg.ReceivingMessage(bot, config)
 
         self.assertFalse(receiving_message._ReceivingMessage__get_allowed_user(message))
+
+    def test_get_configured_username_from_command_matches_case_insensitively(self):
+        bot = MagicMock()
+        config = self._make_config()
+
+        receiving_message = receive_msg.ReceivingMessage(bot, config)
+
+        self.assertEqual(
+            receiving_message._ReceivingMessage__get_configured_username_from_command("/mIcHa"),
+            "Micha",
+        )
 
 
 if __name__ == "__main__":
