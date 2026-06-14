@@ -119,24 +119,6 @@ jobs:
             echo "tag_exists=false" >> "${GITHUB_OUTPUT}"
           fi
 
-      - name: Download CI artifacts
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
-        run: |
-          mkdir -p release-artifacts
-          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" > release-artifacts/artifacts.json
-
-          ARTIFACT_COUNT=$(jq '.artifacts | length' release-artifacts/artifacts.json)
-          if [ "${ARTIFACT_COUNT}" -eq 0 ]; then
-            echo "No CI artifacts found for workflow run ${RUN_ID}" >&2
-            exit 1
-          fi
-
-          jq -r '.artifacts[] | [.id, .name] | @tsv' release-artifacts/artifacts.json | while IFS=$'\t' read -r artifact_id artifact_name; do
-            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "release-artifacts/${artifact_name}.zip"
-          done
-
       - name: Write release body
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -177,9 +159,3 @@ jobs:
             gh release create "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "Release ${TAG}" --notes-file release-body.md
           fi
 
-      - name: Upload release assets
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.next_tag.outputs.next_tag }}
-        run: |
-          gh release upload "${TAG}" release-artifacts/*.zip --repo "${GITHUB_REPOSITORY}" --clobber
