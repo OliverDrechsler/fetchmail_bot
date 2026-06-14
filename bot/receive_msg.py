@@ -19,34 +19,43 @@ class ReceivingMessage:
         self.config: config_util.Configuration = config
         self.logger.debug(msg="initialize receive_msg class instance")
         self.bot: telebot.TeleBot = bot
-        self.commands = self.bot.message_handler(commands=self.config.list_user)(self.receive_user_mails)
-        self.message_request = self.bot.message_handler(func=lambda message: message.content_type == "text")(self.receive_mail_for_requested_user)
+        self.commands = self.bot.message_handler(commands=self.config.list_user)(self.__receive_user_mails)
+        self.message_request = self.bot.message_handler(func=lambda message: message.content_type == "text")(self.__receive_mail_for_requested_user)
 
     def start(self):
         self.logger.debug(msg="start bot endless polling")
         self.bot.infinity_polling(logger_level=logging.DEBUG, timeout=10, long_polling_timeout=5)
     
-    def receive_user_mails(self, message: telebot.types.Message) -> None:
+    def __receive_user_mails(self, message: telebot.types.Message) -> None:
         # check if received from allowed telegram chat group and
         # if it was send from allowed user id.
-        if self.get_allowed(message=message):
-            # get username from command to fetch mail for
-            username_from_msg: str = str(message.text).lstrip("/").lower()
+        if self.__get_allowed(message=message):
+            configured_username = self.__get_configured_username_from_command(
+                command_text=str(message.text)
+            )
+            if configured_username is None:
+                self.logger.warning("Received unmatched fetchmail command: %s", message.text)
+                return
+
             sleep(1.5)
-            self.bot.reply_to(message, f"{username_from_msg} - I'll start fetching new mails")
+            self.bot.reply_to(
+                message,
+                f"{configured_username} - I'll start fetching new mails",
+            )
 
             # start new thread for fetchmail
             fetch_mail_thread = threading.Thread(
-                target=self.fetch_mail_process, args=(username_from_msg, message)
+                target=self.__fetch_mail_process,
+                args=(configured_username, message),
             )
             fetch_mail_thread.start()
             fetch_mail_thread.join()
 
     # @bot.message_handler(func=lambda message: message.content_type == "text")
-    def receive_mail_for_requested_user(self, message):
+    def __receive_mail_for_requested_user(self, message):
         # check if received from allowed telegram chat group and allowed
         # user id has send.
-        if self.get_allowed(message=message):
+        if self.__get_allowed(message=message):
             # check is text message is mail, otherwise do nothing
             if str(message.text).lower() == "mail":
                 # Loop over config user dict with username and its telegram id
@@ -63,16 +72,16 @@ class ReceivingMessage:
                         )
                         self.logger.info(msg=f"will call fetchmail with username: {k}")
                         fetch_mail_thread = threading.Thread(
-                            target=self.fetch_mail_process,
-                            args=(k.lower(), message),
+                            target=self.__fetch_mail_process,
+                            args=(k, message),
                         )
                         fetch_mail_thread.start()
                         fetch_mail_thread.join()
     
-    def fetch_mail_process(self,
-                           username: str,
-                           message: telebot.types.Message
-                           ) -> None:
+    def __fetch_mail_process(self,
+                             username: str,
+                             message: telebot.types.Message
+                             ) -> None:
         """Fetches mail for specified user in separate thread
 
         :param username: context were fetchmail process should run
@@ -105,11 +114,26 @@ class ReceivingMessage:
                 sleep(1.5)
                 self.bot.reply_to(message, "No mail to fetch found.")
         except Exception as e:
-            self.logger.info(msg=f"Error during fetch mail process: {e}")
+            self.logger.exception("Error during fetch mail process for user %s", username)
             sleep(1.5)
-            self.bot.send_message(message.chat.id, f"Error during fetch mail process: {e}")
+            self.bot.send_message(
+                message.chat.id,
+                "Error during fetch mail process. Please retry later.",
+            )
 
-    def get_allowed(self, message: telebot.types.Message) -> bool:
+    def __get_configured_username_from_command(self, command_text: str) -> str | None:
+        """Resolve a bot command to the canonical username from the config."""
+        requested_username = command_text.lstrip("/").strip().casefold()
+
+        configured_usernames = list(self.config.user_dict.keys()) + list(
+            self.config.additional_list
+        )
+        for configured_username in configured_usernames:
+            if configured_username.casefold() == requested_username:
+                return configured_username
+        return None
+
+    def __get_allowed(self, message: telebot.types.Message) -> bool:
         """Checks given telegram chat id is allowed id from config
         and perform further check get_allowed_user
 
@@ -119,10 +143,10 @@ class ReceivingMessage:
         :rtype: bool
         """
         if str(message.chat.id) == self.config.telegram_chat_nr:
-            return self.get_allowed_user(message=message)
+            return self.__get_allowed_user(message=message)
         return False
 
-    def get_allowed_user(self, message: telebot.types.Message) -> bool:
+    def __get_allowed_user(self, message: telebot.types.Message) -> bool:
         """Checks if given telegram from user id is allowed from config file
 
         :param message: received telegram message

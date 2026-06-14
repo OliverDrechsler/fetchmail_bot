@@ -23,7 +23,7 @@ class TestFetchMailProcess:
         message = MagicMock(telebot.types.Message)
         receiving_message = receive_msg.ReceivingMessage(bot, config)
         receiving_message.logger = MagicMock(logging.Logger)
-        receiving_message.fetch_mail_process("testuser", message)
+        receiving_message._ReceivingMessage__fetch_mail_process("testuser", message)
         bot.reply_to.assert_called_once_with(
             message, "New mails fetched - process completed."
         )
@@ -45,7 +45,7 @@ class TestFetchMailProcess:
         message = MagicMock(telebot.types.Message)
         receiving_message = receive_msg.ReceivingMessage(bot, config)
         receiving_message.logger = MagicMock(logging.Logger)
-        receiving_message.fetch_mail_process("testuser", message)
+        receiving_message._ReceivingMessage__fetch_mail_process("testuser", message)
         
         bot.reply_to.assert_called_once_with(
             message, "Another fetchmail process is running - retry later again."
@@ -63,10 +63,10 @@ class TestFetchMailProcess:
         message = MockMessage(chat_id="12345")
         receiving_message = receive_msg.ReceivingMessage(bot, config)
         receiving_message.logger = MagicMock(logging.Logger)
-        receiving_message.fetch_mail_process("testuser", message)
+        receiving_message._ReceivingMessage__fetch_mail_process("testuser", message)
         bot.send_message.assert_called_once_with(
-            message.chat.id, "Error during fetch mail process: General error"
+            message.chat.id, "Error during fetch mail process. Please retry later."
         )
-        receiving_message.logger.info.assert_called_with(
-            msg="Error during fetch mail process: General error"
+        receiving_message.logger.exception.assert_called_once_with(
+            "Error during fetch mail process for user %s", "testuser"
         )
