@@ -1,0 +1,185 @@
+name: Semantic Release on Merge to Master
+
+on:
+  workflow_run:
+    workflows: ["ci build and test code"]
+    types: [completed]
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+concurrency:
+  group: release-on-merge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: Set up release environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get latest tag
+        id: get_latest_tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          TAGS=$(gh api "repos/${GITHUB_REPOSITORY}/tags?per_page=100" --paginate --jq '.[].name')
+          TAG=$(printf '%s\n' "${TAGS}" | grep -E '^[v]?[0-9]+\.[0-9]+(\.[0-9]+)?$' | sed 's/^v//' | sort -V | tail -n 1 || true)
+          ORIGINAL_TAG=$(printf '%s\n' "${TAGS}" | grep -E "^[v]?${TAG}$" | tail -n 1 || true)
+          echo "latest_tag=${ORIGINAL_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "Found latest tag: ${ORIGINAL_TAG}"
+
+      - name: Collect commit metadata
+        id: commits
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          LATEST=${{ steps.get_latest_tag.outputs.latest_tag }}
+          if [ -z "${LATEST}" ]; then
+            gh api "repos/${GITHUB_REPOSITORY}/commits?sha=${HEAD_SHA}&per_page=100" --paginate > commits.json
+            jq -r '.[].commit.message' commits.json > commit_messages.txt
+            jq -r '.[] | "- " + .commit.message | split("\n")[0]' commits.json > release_notes.txt
+          else
+            gh api "repos/${GITHUB_REPOSITORY}/compare/${LATEST}...${HEAD_SHA}" > compare.json
+            jq -r '.commits[].commit.message' compare.json > commit_messages.txt
+            jq -r '.commits[] | "- " + .commit.message | split("\n")[0]' compare.json > release_notes.txt
+          fi
+
+      - name: Determine next semantic version
+        id: next_tag
+        run: |
+          LATEST=${{ steps.get_latest_tag.outputs.latest_tag }}
+          if [ -z "${LATEST}" ]; then
+            LATEST="0.0.0"
+          fi
+
+          VERSION=$(echo "${LATEST}" | sed 's/^v//')
+          MAJOR=$(echo "${VERSION}" | cut -d. -f1)
+          MINOR=$(echo "${VERSION}" | cut -d. -f2)
+          PATCH=$(echo "${VERSION}" | cut -d. -f3)
+
+          COMMITS=$(cat commit_messages.txt)
+
+          if echo "${COMMITS}" | grep -q "BREAKING CHANGE"; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            BUMP="major"
+          elif echo "${COMMITS}" | grep -q "^feat"; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            BUMP="minor"
+          elif echo "${COMMITS}" | grep -q "^fix"; then
+            PATCH=$((PATCH + 1))
+            BUMP="patch"
+          else
+            PATCH=$((PATCH + 1))
+            BUMP="default patch"
+          fi
+
+          NEXT_TAG="${MAJOR}.${MINOR}.${PATCH}"
+          echo "next_tag=${NEXT_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "bump_type=${BUMP}" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          NOTES=$(cat release_notes.txt)
+          echo "notes<<EOF" >> "${GITHUB_OUTPUT}"
+          echo "${NOTES}" >> "${GITHUB_OUTPUT}"
+          echo "EOF" >> "${GITHUB_OUTPUT}"
+
+      - name: Create tag if missing
+        id: create_tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          TAG=${{ steps.next_tag.outputs.next_tag }}
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" >/dev/null 2>&1; then
+            echo "tag_exists=true" >> "${GITHUB_OUTPUT}"
+            echo "Tag ${TAG} already exists; skipping creation"
+          else
+            gh api "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f ref="refs/tags/${TAG}" \
+              -f sha="${HEAD_SHA}" >/dev/null
+            echo "tag_exists=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Download CI artifacts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p release-artifacts
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts" > release-artifacts/artifacts.json
+
+          ARTIFACT_COUNT=$(jq '.artifacts | length' release-artifacts/artifacts.json)
+          if [ "${ARTIFACT_COUNT}" -eq 0 ]; then
+            echo "No CI artifacts found for workflow run ${RUN_ID}" >&2
+            exit 1
+          fi
+
+          jq -r '.artifacts[] | [.id, .name] | @tsv' release-artifacts/artifacts.json | while IFS=$'\t' read -r artifact_id artifact_name; do
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "release-artifacts/${artifact_name}.zip"
+          done
+
+      - name: Write release body
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          IMAGE_REPOSITORY="$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_NAME="ghcr.io/${IMAGE_REPOSITORY}"
+          PACKAGE_NAME="$(basename "${IMAGE_REPOSITORY}")"
+          PACKAGE_URL="https://github.com/${GITHUB_REPOSITORY}/pkgs/container/${PACKAGE_NAME}"
+
+          {
+            echo "### Changes"
+            echo "${{ steps.notes.outputs.notes }}"
+            echo
+            echo "**Version bump type:** ${{ steps.next_tag.outputs.bump_type }}"
+            echo
+            echo "### Docker Image"
+            echo "GitHub Container Registry package: ${PACKAGE_URL}"
+            echo
+            echo '```bash'
+            echo "docker pull ${IMAGE_NAME}:latest"
+            echo '```'
+            echo
+            echo "### CI Build"
+            echo "Artifacts were produced by CI workflow run:"
+            echo "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}"
+            echo
+            echo "The attached release assets are the zipped CI artifacts for all successful target builds."
+          } > release-body.md
+
+      - name: Create or update GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.next_tag.outputs.next_tag }}
+        run: |
+          if gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release edit "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "Release ${TAG}" --notes-file release-body.md
+          else
+            gh release create "${TAG}" --repo "${GITHUB_REPOSITORY}" --title "Release ${TAG}" --notes-file release-body.md
+          fi
+
+      - name: Upload release assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.next_tag.outputs.next_tag }}
+        run: |
+          gh release upload "${TAG}" release-artifacts/*.zip --repo "${GITHUB_REPOSITORY}" --clobber
