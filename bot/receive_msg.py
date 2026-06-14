@@ -19,7 +19,9 @@ class ReceivingMessage:
         self.config: config_util.Configuration = config
         self.logger.debug(msg="initialize receive_msg class instance")
         self.bot: telebot.TeleBot = bot
-        self.commands = self.bot.message_handler(commands=self.config.list_user)(self.__receive_user_mails)
+        self.commands = self.bot.message_handler(
+            func=self.__is_fetchmail_command
+        )(self.__receive_user_mails)
         self.message_request = self.bot.message_handler(func=lambda message: message.content_type == "text")(self.__receive_mail_for_requested_user)
 
     def start(self):
@@ -132,6 +134,12 @@ class ReceivingMessage:
             if configured_username.casefold() == requested_username:
                 return configured_username
         return None
+
+    def __is_fetchmail_command(self, message: telebot.types.Message) -> bool:
+        """Match configured fetchmail commands case-insensitively."""
+        if message.content_type != "text" or not message.text:
+            return False
+        return self.__get_configured_username_from_command(str(message.text)) is not None
 
     def __get_allowed(self, message: telebot.types.Message) -> bool:
         """Checks given telegram chat id is allowed id from config
